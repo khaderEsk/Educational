@@ -16,12 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->integer('age');
-            //$table->date('date');
-            $table->string('adress');
+            $table->date('birthDate')->nullable();
+            $table->string('address');
             $table->string('governorate');
-
+            $table->string('image');
+            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->string('google_id')->nullable()->unique();
             $table->timestamps();

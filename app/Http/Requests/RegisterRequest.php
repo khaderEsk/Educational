@@ -29,15 +29,15 @@ class RegisterRequest extends FormRequest
             'name' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|string|min:6',
-            'age'=>'integer|required',
-            'adress'=>'required|string',
-            'governorate'=>'required|string'
+            'birthDate' => 'date|required',
+            'address' => 'required|string',
+            'governorate' => 'required|string',
+            'image' => 'required',
         ];
     }
 
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException($this->returnValidationError('422', $validator));
-
     }
 }

@@ -6,12 +6,16 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Wallet;
 use App\Traits\GeneralTrait;
+use Faker\Core\File;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Storage;
+use Nette\Utils\Random;
 
 class AuthController extends Controller
 {
@@ -23,13 +27,12 @@ class AuthController extends Controller
         $token = JWTAuth::attempt($credentials);
 
         if (!$token)
-            return $this->returnError("401",'token Not found');
+            return $this->returnError("401", 'token Not found');
 
-        $user =auth()->user();
+        $user = auth()->user();
         $user->token = $token;
 
-        return $this->returnData($user,'operation completed successfully');
-
+        return $this->returnData($user, 'operation completed successfully');
     }
 
     public function redirectToGoogle()
@@ -57,7 +60,7 @@ class AuthController extends Controller
             auth()->login($newUser, true);
         }
 
-        return $this->returnData($user,'operation completed successfully');
+        return $this->returnData($user, 'operation completed successfully');
     }
 
 
@@ -68,33 +71,42 @@ class AuthController extends Controller
         $token = JWTAuth::attempt($credentials);
 
         if (!$token)
-            return $this->returnError("",'Unauthorized');
+            return $this->returnError("", 'Unauthorized');
 
-        $user =auth()->user();
+        $user = auth()->user();
         $user->token = $token;
 
-        return $this->returnData($user,'operation completed successfully');
+        return $this->returnData($user, 'operation completed successfully');
     }
 
     public function register(RegisterRequest $request)
     {
-        $user=User::create([
+
+        $Image_name = Str::random(32) . "." . $request->image->getClientOriginalExtension();
+        $user = User::create([
             'name'           => $request->name,
             'email'          => $request->email,
             'password'       => $request->password,
-            'age'            => $request->age,
-            'adress'         => $request->adress,
+            'birthDate'      => $request->birthDate,
+            'address'        => $request->address,
             'governorate'    => $request->governorate,
+            'image'          => $Image_name,
         ]);
 
-        $credentials =['email'=>$user->email,'password'=>$request->password];
+        Storage::disk('public')->put($Image_name, file_get_contents($request->image));
+        $credentials = ['email' => $user->email, 'password' => $request->password];
         $token = JWTAuth::attempt($credentials);
-        $user->token=$token;
+        $user->token = $token;
 
         if (!$token)
-            return $this->returnError("",'Unauthorized');
+            return $this->returnError("", 'Unauthorized');
 
-        return $this->returnData($user,'operation completed successfully');
+        $wallet = Wallet::create([
+            'user_id' => $user->id,
+            'number' => random_int(1000000000000, 9000000000000),
+            'value' => 0,
+        ]);
+        return $this->returnData($user, 'operation completed successfully');
     }
 
 
@@ -104,14 +116,12 @@ class AuthController extends Controller
         if ($token) {
             try {
                 JWTAuth::setToken($token)->invalidate();
-                return $this->returnError("",'Logged out successfully');
+                return $this->returnError("", 'Logged out successfully');
             } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-                return $this->returnError("",'some thing went wrongs');
+                return $this->returnError("", 'some thing went wrongs');
             }
         } else {
-            return $this->returnError("",'some thing went wrongs');
+            return $this->returnError("", 'some thing went wrongs');
         }
     }
-
-
 }

@@ -13,7 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable,HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -24,10 +24,11 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
-        'age',
-        'adress',
+        'birthDate',
+        'address',
         'governorate',
-        'google_id'
+        'google_id',
+        'image'
     ];
 
     /**
@@ -48,44 +49,50 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
+    //khader Eskander
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class, 'user_id', 'id');
+    }
 
     public function profile_teacher()
     {
-        return $this->hasOne(ProfileTeacher::class,'user_id','id');
+        return $this->hasOne(ProfileTeacher::class, 'user_id', 'id');
     }
 
     public function request_teacher()
     {
-        return $this->hasOne(RequestComplete::class,'user_id','id');
+        return $this->hasOne(RequestComplete::class, 'user_id', 'id');
     }
 
     public function teaching_methods()
     {
-        return $this->hasMany(TeachingMethod::class,'user_id','id');
+        return $this->hasMany(TeachingMethod::class, 'user_id', 'id');
     }
 
     public function service_teachers()
     {
-        return $this->hasMany(ServiceTeacher::class,'user_id','id');
+        return $this->hasMany(ServiceTeacher::class, 'user_id', 'id');
     }
 
     public function profile_student()
     {
-        return $this->hasOne(ProfileStudent::class,'user_id','id');
+        return $this->hasOne(ProfileStudent::class, 'user_id', 'id');
     }
 
     public function ads()
     {
-        return $this->hasMany(Ads::class,'user_id','id');
+        return $this->hasMany(Ads::class, 'user_id', 'id');
     }
 
-    public function appointment_teacher_students(){
+    public function appointment_teacher_students()
+    {
         return $this->belongsToMany(
             AppointmentTeacherStudent::class,
             'appointment_teacher_students',
             'user_id',
-            'teacher_id')->withPivot('id');
+            'teacher_id'
+        )->withPivot('id');
     }
 
     // public function appointment_teacher_students(){
@@ -99,12 +106,13 @@ class User extends Authenticatable implements JWTSubject
 
 
     public function setPasswordAttribute($value)
-     {
-         $this->attributes['password']=Hash::make($value);
-     }
+    {
+        $this->attributes['password'] = Hash::make($value);
+    }
 
 
-    public function getJWTIdentifier() {
+    public function getJWTIdentifier()
+    {
         return $this->getKey();
     }
     /**
@@ -112,7 +120,8 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return array
      */
-    public function getJWTCustomClaims() {
+    public function getJWTCustomClaims()
+    {
         return [];
     }
 }
