@@ -8,14 +8,12 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Traits\GeneralTrait;
-use Faker\Core\File;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Storage;
-use Nette\Utils\Random;
 
 class AuthController extends Controller
 {
@@ -100,12 +98,13 @@ class AuthController extends Controller
 
         if (!$token)
             return $this->returnError("", 'Unauthorized');
-
+        // Start kadar
         $wallet = Wallet::create([
             'user_id' => $user->id,
             'number' => random_int(1000000000000, 9000000000000),
             'value' => 0,
         ]);
+        // End kadar
         return $this->returnData($user, 'operation completed successfully');
     }
 
